@@ -1,13 +1,13 @@
-import matter from 'gray-matter';
-import { marked } from 'marked';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Project } from '$lib/types/project';
+import matter from 'gray-matter';
+import { marked } from 'marked';
 import {
-	DEFAULT_ICON,
 	DEFAULT_GRADIENT_FROM,
-	DEFAULT_GRADIENT_TO
+	DEFAULT_GRADIENT_TO, 
+	DEFAULT_ICON
 } from '$lib/catalog/defaults.js';
+import type { Project } from '$lib/types/project';
 
 // Source of truth is the collector's output (.generated/projects, fetched from
 // each repo's .aylith/project.md at build time). When that's absent — local dev

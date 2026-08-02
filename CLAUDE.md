@@ -22,8 +22,13 @@ npm run dev        # Vite dev server, http://localhost:5847
 npm run collect    # fetch org .aylith/project.md → .generated/projects/ (needs CATALOG_GITHUB_TOKEN; optional locally)
 npm run build      # prerendered static output → landing/build
 npm run preview    # serve the build, http://localhost:5848
-npm run check      # svelte-kit sync && svelte-check (TS + Svelte diagnostics)
+npm run check      # svelte-kit sync && svelte-check --tsgo (TS + Svelte diagnostics)
+npm run check:links # walk build/ and fail on a broken internal link (run after build)
+npm test           # vitest — manifest transforms, snapshot loader, sitemap, link classification
+npm run lint       # biome check . (read-only; lint:fix writes)
 ```
+
+**npm only.** `landing/package-lock.json` is the single lockfile; CI pins `npm ci` with the npm cache.
 
 No runtime env vars — fully static, no backend.
 
@@ -61,6 +66,9 @@ in the skill.
 
 - Catalog data is **collected at build, not edited in this repo** — to add/change a tool, edit that tool's own repo `.aylith/project.md`, not files here.
 - Public repo → CI runs on GitHub-hosted runners (`vars.CI_RUNNER || 'ubuntu-latest'`).
+- **`.github/workflows/ci.yml` is the gate** (lint → check → test → build → check:links) and `deploy.yml` calls it as its own `verify` job with `build: needs: verify`. Deploy fires on cron and on a dispatch from any product repo, neither of which a push/PR-only workflow would ever see, so the gate has to live inside the deploy path.
+- **TypeScript is the native (Go) compiler.** `@typescript/native` is `npm:typescript@^7`; the plain `typescript` entry is pinned to `~6` because svelte-check requires both installed and refuses to start otherwise — collapsing it to a single `typescript: ^7` takes the typecheck gate down, even with `--tsgo` already on the command. Neither entry is a downgrade: `./node_modules/@typescript/native/bin/tsc --version` reports the compiler that does the checking.
+- **The sitemap is generated from `src/lib/server/sitemap.ts`**, not inside the route — SvelteKit rejects non-endpoint exports from a `+server.ts`.
 - Design tokens (Tailwind v4 `@theme`, keyframes, motion gating) live in `landing/src/app.css`.
 - Motion is gated on `prefers-reduced-motion` + `html[data-motion]`; theme/motion resolve pre-paint via inline script in `app.html`.
 - For logo/mark, favicon, avatar, or name-origin changes use the `aylith-brand-mark` skill — it owns the locked geometry, asset-sync graph, and regen recipe.

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Deploy fires on triggers this workflow never sees — an hourly cron and a
+  # repository_dispatch from any product repo — so it calls this gate as its own
+  # `verify` job rather than redefining the steps.
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+
+      - run: npm ci
+
+      # `lint` is the read-only form; `lint:fix` is the one that rewrites files.
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+
+      # Built from the committed snapshot — no catalog token, so this also proves a
+      # tokenless build still produces a complete site.
+      - run: npm run build
+      - run: npm run check:links

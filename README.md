@@ -32,13 +32,13 @@ Brand details: a Konami-code easter egg and a styled console signature live in t
 | Layer | Choice |
 | --- | --- |
 | Framework | SvelteKit 2 (Svelte 5 runes) |
-| Language | TypeScript |
+| Language | TypeScript 7 (native compiler, via `svelte-check --tsgo`) |
 | Styling | Tailwind CSS v4 (`@theme` tokens via `@tailwindcss/vite`) + `@tailwindcss/typography` |
 | Build | Vite 8 |
 | Adapter | `@sveltejs/adapter-static` (full SSG — every route prerendered) |
 | Content | Per-repo `.aylith/project.md` manifests, collected at build via `@octokit/rest`, parsed with `gray-matter` + `marked` |
 | Fonts | Space Grotesk (display) + DM Sans (body), via Google Fonts |
-| Quality | `svelte-check` (TypeScript + Svelte diagnostics) |
+| Quality | `svelte-check` (TypeScript + Svelte diagnostics), Biome (lint), Vitest, prerendered-output link check |
 | Hosting | GitHub Pages (Actions → Pages) on the custom domain `aylith.com` |
 
 ## Architecture
@@ -57,7 +57,7 @@ The app lives in the `landing/` subdirectory. Node 22+ is recommended (CI pins N
 
 ```bash
 cd landing
-npm install          # or: bun install
+npm install          # npm only — package-lock.json is the single lockfile
 npm run dev          # dev server on http://localhost:5847
 ```
 
@@ -80,13 +80,18 @@ Run from `landing/`:
 | `npm run collect` | `node scripts/collect.mjs` | Fetch every repo's `.aylith/project.md` from the org into `.generated/projects/` (needs `CATALOG_GITHUB_TOKEN`). CI runs this before the build; locally it's optional — the build falls back to the snapshot. |
 | `npm run build` | `vite build` | Produce the prerendered static site in `build/`. |
 | `npm run preview` | `vite preview` | Preview the production build (port 5848). |
-| `npm run check` | `svelte-kit sync && svelte-check` | Sync SvelteKit types and type-check the project. |
+| `npm run check` | `svelte-kit sync && svelte-check --tsgo` | Sync SvelteKit types and type-check with the TypeScript 7 native compiler. |
+| `npm run check:links` | `node scripts/check-links.mjs` | Walk `build/` and fail on any internal link that resolves to a file the build did not emit. Run after `npm run build`. |
+| `npm test` | `vitest run` | Unit tests for the catalog manifest transforms, the snapshot loader, the sitemap, and link classification. |
+| `npm run lint` | `biome check .` | Lint (read-only — safe as a gate). |
+| `npm run lint:fix` | `biome check --write .` | Apply Biome's fixes. |
 | `npm run prepare` | `svelte-kit sync` | Generate SvelteKit types (runs on install). |
 
 ## Project Structure
 
 ```
 aylith.com/
+├── .github/workflows/ci.yml       # lint + typecheck + test + build + link check (also called by deploy)
 ├── .github/workflows/deploy.yml   # GitHub Pages deploy (push / repository_dispatch / cron)
 ├── .aylith/
 │   ├── project.schema.json        # Manifest frontmatter schema (the contract each repo fills)
@@ -141,8 +146,10 @@ Local dev needs neither — `npm run dev`/`build` fall back to `src/content/proj
 Deployed to **GitHub Pages** at the custom domain **aylith.com** (`static/CNAME`), automatically via **GitHub Actions → Pages** (`.github/workflows/deploy.yml`):
 
 1. Triggers: push to `main`, a `catalog-refresh` `repository_dispatch` from any product repo, an hourly `schedule`, or manual `workflow_dispatch`.
-2. Checks out the repo, sets up Node 22 (npm cache), runs `npm ci`, then `npm run collect` (fetches the catalog from the org; skipped with a warning if `CATALOG_GITHUB_TOKEN` is unset), then `npm run build` inside `landing/`.
-3. Uploads `landing/build/` as a Pages artifact (`actions/upload-pages-artifact`) and deploys it (`actions/deploy-pages`).
+2. Runs `verify` first — the whole of `ci.yml` (lint, typecheck, tests, build, link check). Nothing downstream starts until it is green. Most triggers here never involve a pull request, so this is the only thing standing between a broken commit and the live site.
+3. Checks out the repo, sets up Node 22 (npm cache), runs `npm ci`, then `npm run collect` (fetches the catalog from the org; skipped with a warning if `CATALOG_GITHUB_TOKEN` is unset), then `npm run build` inside `landing/`.
+4. Re-runs the link check over the collected build, as a warning rather than a failure — those pages come from other repos' manifests, and one repo's relative link should not be able to block the site's deploy.
+5. Uploads `landing/build/` as a Pages artifact (`actions/upload-pages-artifact`) and deploys it (`actions/deploy-pages`).
 
 Details:
 

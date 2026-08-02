@@ -21,14 +21,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The cron and repository_dispatch triggers below never touch a pull request, so a
+  # push/PR-only workflow would not stand between a broken commit and the live site.
+  # Deploy therefore runs the gate itself and refuses to publish a red build.
+  verify:
+    uses: ./.github/workflows/ci.yml
+
   build:
+    needs: verify
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: landing
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -46,6 +53,11 @@ jobs:
         # leaves no partial output.
         run: npm run collect || echo "::warning::Catalog collection failed — building from the committed snapshot."
       - run: npm run build
+      # Blocking in `verify`, where the content is this repo's own snapshot. Here the pages are
+      # built from manifests collected out of other repos, and a relative link in somebody else's
+      # manifest body must not be able to hold the whole site's deploy hostage.
+      - name: Check links in the collected build
+        run: npm run check:links || echo "::warning::Broken internal link in the collected build — see the log."
       - uses: actions/upload-pages-artifact@v5
         with:
           path: landing/build

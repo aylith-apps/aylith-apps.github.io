@@ -23,7 +23,7 @@
 					const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 					const isDark = themePref === 'dark' || (themePref === 'system' && systemDark);
 					document.documentElement.classList.toggle('dark', isDark);
-				} catch (error) {
+				} catch {
 					/* no-op: components apply preferences on mount */
 				}
 			})();

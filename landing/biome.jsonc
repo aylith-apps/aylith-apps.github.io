@@ -1,0 +1,42 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error"
+			}
+		}
+	},
+	// Formatting stays off: the existing files are Prettier-shaped, and turning it on would bury
+	// every real change under a whole-repo reflow. Adopting a formatter is a separate decision.
+	"formatter": { "enabled": false },
+	"files": {
+		"includes": [
+			"**",
+			"!**/node_modules",
+			"!**/build",
+			"!**/.svelte-kit",
+			"!**/.generated",
+			"!**/.impeccable",
+			// Svelte and mdsvex files are checked by svelte-check, which sees the template as well;
+			// Biome reads only the <script> block and reports every template-referenced value unused.
+			"!**/*.svelte",
+			"!**/*.svx",
+			"!**/*.md",
+			// Tailwind v4 at-rules (@theme, @custom-variant, @utility) are not in Biome's CSS grammar,
+			// so app.css only produces parse errors.
+			"!**/*.css",
+			// Brand assets with locked geometry; Biome lints them as markup and asks for a <title>
+			// on decorative marks that already carry accessible names at their use sites.
+			"!**/*.svg",
+			"!**/package-lock.json"
+		]
+	}
+}

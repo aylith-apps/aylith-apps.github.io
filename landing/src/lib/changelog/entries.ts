@@ -16,10 +16,19 @@ const entries: ChangelogEntry[] = Object.entries(modules)
 			component: module.default
 		};
 	})
-	.sort((a, b) => (a.date === b.date ? b.id.localeCompare(a.id) : b.date.localeCompare(a.date)));
+	.sort((first, second) =>
+		first.date === second.date
+			? second.id.localeCompare(first.id)
+			: second.date.localeCompare(first.date)
+	);
 
 export function getEntries(slug: string): ChangelogEntry[] {
 	return entries.filter((entry) => entry.slug === slug);
+}
+
+/** Slugs that have at least one changelog entry. */
+export function getSlugsWithEntries(): string[] {
+	return [...new Set(entries.map((entry) => entry.slug))];
 }
 
 /** Latest entry hero for a project, used as the detail-page screenshot. */
