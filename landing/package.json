@@ -34,5 +34,9 @@
 		"typescript": "~6.0.3",
 		"vite": "^8.2.0",
 		"vitest": "^4.1.10"
+	},
+	"dependencies": {
+		"@ai-sdk/svelte": "^5.0.2",
+		"dompurify": "^3.4.11"
 	}
 }
