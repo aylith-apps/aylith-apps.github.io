@@ -131,12 +131,16 @@ PY
 
   payload="$(mktemp)"
   content_b64="$(base64 -w0 "$rendered")"
+  # [skip ci] because this file is inert until a watched workflow completes —
+  # nothing here needs a gate run. It also keeps the rollout from tripping the
+  # push-triggered ship workflows it is here to watch: compokit's release.yml
+  # bumps a version, tags and cuts a GitHub release on every push to main.
   if [[ -n "$sha" ]]; then
-    jq -n --arg msg "chore: update deploy-failure alerting" \
+    jq -n --arg msg "chore: update deploy-failure alerting [skip ci]" \
           --arg content "$content_b64" --arg sha "$sha" \
           '{message:$msg, content:$content, sha:$sha}' > "$payload"
   else
-    jq -n --arg msg "chore: add deploy-failure alerting" \
+    jq -n --arg msg "chore: add deploy-failure alerting [skip ci]" \
           --arg content "$content_b64" \
           '{message:$msg, content:$content}' > "$payload"
   fi
