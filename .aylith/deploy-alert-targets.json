@@ -1,0 +1,16 @@
+{
+  "criterion": "A repo is a target when one of its workflows ships something that leaves the repo: a deploy to a host or to GitHub Pages, a publish to npm, an rsync to the VPS, or a published GitHub release. Only those workflows are watched. CI gates, catalog notifiers, link checks and validators are excluded on purpose — a red CI on a branch is ordinary and routing it here would drown the signal. A repo with no ship workflow gets nothing, permanently.",
+  "workflowsAreMatchedByName": "Values are each workflow's `name:` field, which is what GitHub's workflow_run filter matches — not the filename. Rename a workflow and its entry here goes stale silently; scripts/rollout-deploy-alert.sh --audit catches that.",
+  "targets": {
+    "agent-onboard": ["Publish to npm"],
+    "aylith-com": ["Deploy to GitHub Pages"],
+    "aylith-media": ["Publish to VPS"],
+    "aylith-venture": ["Deploy"],
+    "clipwell": ["Deploy docs"],
+    "cohesa": ["Deploy", "Manual Rollback"],
+    "compokit": ["Release"],
+    "inspekt": ["Deploy site"],
+    "tickets": ["Publish to npm", "Release binaries"],
+    "wisdone": ["Deploy to EC2"]
+  }
+}
