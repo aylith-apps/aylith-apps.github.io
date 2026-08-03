@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_GRADIENT_FROM, DEFAULT_GRADIENT_TO, DEFAULT_ICON } from '$lib/catalog/defaults.js';
-import { getProject, getProjects } from '$lib/server/markdown';
+import { getProject, getProjects, projectFromFrontmatter } from '$lib/server/markdown';
 import { sitemapPaths, sitemapXml } from '$lib/server/sitemap';
 
 // Runs against the committed snapshot in src/content/projects — the same data a tokenless build
@@ -34,6 +34,8 @@ describe('getProjects', () => {
 
 	it('sorts by explicit order first, then by name', () => {
 		const ordered = projects.filter((project) => project.order !== undefined);
+		expect(ordered.length, 'no project carries an order — this test would assert nothing').
+			toBeGreaterThan(1);
 		for (let index = 1; index < ordered.length; index++) {
 			expect(ordered[index].order).toBeGreaterThanOrEqual(ordered[index - 1].order as number);
 		}
@@ -46,21 +48,68 @@ describe('getProjects', () => {
 		}
 	});
 
-	it('applies the shared defaults when a snapshot omits curation fields', () => {
-		const defaulted = projects.filter((project) => project.iconPath === DEFAULT_ICON);
-		for (const project of defaulted) {
-			expect(project.gradientFrom).toBe(DEFAULT_GRADIENT_FROM);
-			expect(project.gradientTo).toBe(DEFAULT_GRADIENT_TO);
+	it('renders the body to HTML only when there is one', () => {
+		const withBody = projects.filter((project) => project.body !== undefined);
+		expect(withBody.length, 'no project carries a body — this test would assert nothing').
+			toBeGreaterThan(0);
+		for (const project of withBody) {
+			expect(project.body?.trim().length, `${project.slug} body`).toBeGreaterThan(0);
+			expect(project.body, `${project.slug} body`).toContain('<');
 		}
 	});
+});
 
-	it('renders the body to HTML only when there is one', () => {
-		for (const project of projects) {
-			if (project.body !== undefined) {
-				expect(project.body.trim().length, `${project.slug} body`).toBeGreaterThan(0);
-				expect(project.body, `${project.slug} body`).toContain('<');
-			}
-		}
+// Every file in the committed snapshot declares icon and both gradients, so the
+// fallbacks are unreachable through getProjects(). They are the path a repo whose
+// .aylith/project.md omits the curation fields takes, so they are tested directly.
+describe('projectFromFrontmatter', () => {
+	const required = {
+		name: 'Probe',
+		tagline: 'tagline',
+		description: 'description',
+		category: 'developer-tools',
+		status: 'building',
+		features: [],
+		targetUser: 'someone'
+	};
+
+	it('fills every curation field a manifest omits', () => {
+		const project = projectFromFrontmatter(required, 'probe');
+
+		expect(project.iconPath).toBe(DEFAULT_ICON);
+		expect(project.gradientFrom).toBe(DEFAULT_GRADIENT_FROM);
+		expect(project.gradientTo).toBe(DEFAULT_GRADIENT_TO);
+		expect(project.featured).toBe(false);
+	});
+
+	it('keeps the manifest values when they are present', () => {
+		const project = projectFromFrontmatter(
+			{
+				...required,
+				icon: 'M1 1h2',
+				gradientFrom: '#000000',
+				gradientTo: '#ffffff',
+				featured: true
+			},
+			'probe'
+		);
+
+		expect(project.iconPath).toBe('M1 1h2');
+		expect(project.gradientFrom).toBe('#000000');
+		expect(project.gradientTo).toBe('#ffffff');
+		expect(project.featured).toBe(true);
+	});
+
+	it('reads iconPath when a manifest uses that spelling instead of icon', () => {
+		const project = projectFromFrontmatter({ ...required, iconPath: 'M2 2h4' }, 'probe');
+
+		expect(project.iconPath).toBe('M2 2h4');
+	});
+
+	it('takes the slug from its argument, not from the frontmatter', () => {
+		const project = projectFromFrontmatter({ ...required, slug: 'wrong' }, 'probe');
+
+		expect(project.slug).toBe('probe');
 	});
 });
 
