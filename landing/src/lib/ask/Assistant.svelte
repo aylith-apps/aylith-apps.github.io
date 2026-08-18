@@ -145,7 +145,8 @@
 							{/each}
 						</div>
 					{/if}
-					{#if message.role === 'assistant'}\n						{#if body}
+					{#if message.role === 'assistant'}
+						{#if body}
 							<div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-surface-900 prose-pre:text-warm-100">
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								{@html renderMarkdown(body)}
