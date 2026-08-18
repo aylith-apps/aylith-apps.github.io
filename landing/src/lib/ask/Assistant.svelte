@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Chat } from '@ai-sdk/svelte';
 	import { DefaultChatTransport, type UIMessage } from 'ai';
-	import { tick } from 'svelte';
+	import { tick, onMount } from 'svelte';
 	import { renderMarkdown } from './markdown';
 
 	type Props = {
@@ -10,6 +10,7 @@
 		pageContext?: () => unknown;
 		placeholder?: string;
 		suggestions?: string[];
+		initialQuery?: string;
 	};
 
 	let {
@@ -21,7 +22,8 @@
 			'I need something to track API schemas — what fits?',
 			'Which products are live versus still building?',
 			'How do the tools connect to each other?'
-		]
+		],
+		initialQuery = ''
 	}: Props = $props();
 
 	const chat = new Chat({
@@ -72,9 +74,15 @@
 		}
 	}
 
+	// If initialized with a prompt (e.g. from /projects search bar), auto-send on mount
+	onMount(() => {
+		if (initialQuery.trim()) {
+			send(initialQuery.trim());
+		}
+	});
+
 	// Auto-scroll as new content streams in.
 	$effect(() => {
-		// touch length + last message text so this re-runs on stream deltas
 		const last = chat.messages.at(-1);
 		void chat.messages.length;
 		void (last ? textOf(last) : '');
@@ -127,8 +135,7 @@
 							{/each}
 						</div>
 					{/if}
-					{#if message.role === 'assistant'}
-						{#if body}
+					{#if message.role === 'assistant'}\n						{#if body}
 							<div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-surface-900 prose-pre:text-warm-100">
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								{@html renderMarkdown(body)}

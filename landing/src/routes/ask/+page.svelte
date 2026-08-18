@@ -1,12 +1,18 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import Assistant from '$lib/ask/Assistant.svelte';
 	import { resolveAiUrl } from '$lib/ask/config';
 
 	const apiUrl = resolveAiUrl();
+	let initialQuery = $state('');
 
-	// The page snapshot the assistant receives each turn — here it just says which
-	// surface it's on. The embeddable widget passes far richer per-page state.
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		const q = params.get('q');
+		if (q) initialQuery = q;
+	});
+
 	function pageContext() {
 		return {
 			surface: 'aylith.com — Ask',
@@ -44,6 +50,10 @@
 		class="animate-fade-in-up mb-10 mt-4 flex min-h-[60vh] flex-1 flex-col rounded-2xl border border-surface-200 bg-white/40 p-2 sm:p-3 dark:border-surface-800 dark:bg-surface-900/30"
 		style="animation-delay: 0.15s"
 	>
-		<Assistant {apiUrl} {pageContext} />
+		{#if initialQuery}
+			<Assistant {apiUrl} {pageContext} {initialQuery} />
+		{:else}
+			<Assistant {apiUrl} {pageContext} />
+		{/if}
 	</div>
 </section>
