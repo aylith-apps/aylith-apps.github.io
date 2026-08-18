@@ -35,6 +35,16 @@
 		})
 	});
 
+	// `fetch` reports an unreachable host as the bare string "Failed to fetch", which tells a
+	// reader nothing about which host or why. Name the gateway the page could not reach.
+	function errorText(error: Error): string {
+		const raw = error.message ?? '';
+		if (!raw || /failed to fetch|load failed|networkerror/i.test(raw)) {
+			return `The assistant service at ${apiUrl} is not reachable from here, so this answer could not be generated. Everything else on the site works without it.`;
+		}
+		return raw;
+	}
+
 	let input = $state('');
 	let scroller: HTMLDivElement | null = $state(null);
 
@@ -156,8 +166,8 @@
 
 		{#if chat.error}
 			<div class="mx-auto max-w-2xl rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-				{chat.error.message || 'Something went wrong.'}
-				<button class="ml-2 underline" onclick={() => chat.regenerate()}>Retry</button>
+				<p>{errorText(chat.error)}</p>
+				<button class="mt-1 underline" onclick={() => chat.regenerate()}>Try again</button>
 			</div>
 		{/if}
 	</div>

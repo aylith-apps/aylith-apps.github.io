@@ -1,21 +1,22 @@
 ---
 name: Videx
-tagline: Universal AI video knowledge base with domain personalization
+tagline: Turn any video library into a domain-tailored knowledge base
 description: >-
-  A knowledge base that indexes YouTube video libraries and full transcripts with domain personalization,
-  pgvector semantic search, AI summaries, and transcript-grounded chat.
+  Videx indexes YouTube channels and their full transcripts, then adapts its search, summaries and
+  topic discovery to the domain you pick — AI engineering, data science, system design, security,
+  creative tech, or anything at all.
 category: developer-tools
 status: beta
 features:
-  - Multi-domain personalization (AI Engineering, Data Science, System Design, Cybersecurity, Creative Tech)
-  - Interactive onboarding wizard and instant domain switching
-  - YouTube channel and video transcript scraping
-  - Full-text and pgvector semantic search across all transcripts
-  - Multi-provider AI summaries, topics, and extraction (GPT-5.6 Luna)
-  - Interactive chat grounded in video transcripts with citations
-  - YouTube OAuth account sync and personal playlists
+  - Pick a knowledge domain and the whole app retunes to it
+  - Channel and video transcript ingestion with chapter and metadata extraction
+  - Full-text plus pgvector semantic search across every transcript
+  - AI summaries, topics and extraction over a pluggable provider chain
+  - Chat grounded in a video's transcript, answers cited back to timestamps
+  - YouTube OAuth sync for personal playlists and video groups
 targetUser: >-
-  Developers, researchers, and technical learners seeking a searchable, AI-synthesized knowledge base across video tutorials and lectures
+  Developers and researchers who learn from video and need it searchable, quotable and organised
+  around the field they actually work in.
 featured: true
 order: 20
 icon: M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0013.5 5.25h-9A2.25 2.25 0 002.25 7.5v9A2.25 2.25 0 004.5 18.75z
@@ -26,16 +27,28 @@ repoUrl: https://github.com/aylith-labs/videx
 
 ## Vision
 
-The best technical tutorials, deep dives, and frontier lectures live on YouTube, but video is inherently difficult to search, reference, and quote. Videx turns any video library into an indexed, searchable, and interactive knowledge base tailored to your chosen domain.
+The best technical talks, deep dives and frontier lectures are on YouTube, and video is the worst
+medium there is for finding a specific idea again. Videx turns a library of channels into an index
+you can search, quote and interrogate — and it shapes itself around the field you are studying
+rather than assuming everyone is here for the same thing.
 
-## The Problem
+## The problem
 
-Video knowledge is trapped in unsearchable timelines and fragmented across creators. Learners and teams need a single, adaptive platform that tailors topic discovery, semantic search queries, and AI transcript analysis to their specific technical domain.
+Video knowledge sits in unsearchable timelines, spread across creators who never agreed on
+vocabulary. A single generic search box treats a shader tutorial and a distributed-consensus talk
+the same way, so the queries that would surface the right moment never get suggested and the
+summaries never use the right words.
 
-## Key Differentiators
+## How it works
 
-- **Domain Personalization**: Select and customize your domain (AI Engineering, Data Science, System Design, Security, Creative Tech, Universal) with tailored queries and focus tags.
-- **Transcript-First Indexing**: Deep extraction of YouTube captions, chapters, and metadata.
-- **Hybrid Semantic Search**: Combines full-text filtering with pgvector embeddings for conceptual search.
-- **Grounded Video Chat**: Ask questions directly against a video's transcript with timestamped citations.
-- **Multi-Provider Fallback**: AI enrichment powered by GPT-5.6 Luna with automatic fallback chains across providers.
+- **Domain personalization** — choose AI Engineering, Data Science, System Design, Cybersecurity,
+  Creative Tech, or the universal profile. Suggested queries, focus topics, channel discovery and
+  AI prompts all retune, and switching is instant.
+- **Transcript-first ingestion** — channel listings via InnerTube, captions, chapters and engagement
+  metadata, stored as timestamped segments rather than one flat blob.
+- **Hybrid search** — PostgreSQL full-text for the exact phrase, pgvector embeddings for the idea
+  you can only describe.
+- **Grounded chat** — ask a question against one video and every claim links back to the second it
+  came from.
+- **Provider-agnostic AI** — a fallback chain across providers, so a rate limit degrades the answer
+  rather than the app.
