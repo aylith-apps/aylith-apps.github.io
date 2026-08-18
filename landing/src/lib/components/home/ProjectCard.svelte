@@ -74,7 +74,7 @@
 			{#if searchQuery.trim()}
 				{#each highlightText(project.name, searchQuery) as part}
 					{#if part.highlight}
-						<mark class="rounded bg-accent-500/20 px-0.5 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
+						<mark class="rounded-sm bg-accent-500/20 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
 					{:else}
 						{part.text}
 					{/if}
@@ -88,7 +88,7 @@
 			{#if searchQuery.trim()}
 				{#each highlightText(project.tagline, searchQuery) as part}
 					{#if part.highlight}
-						<mark class="rounded bg-accent-500/20 px-0.5 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
+						<mark class="rounded-sm bg-accent-500/20 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
 					{:else}
 						{part.text}
 					{/if}
@@ -102,7 +102,7 @@
 			{#if searchQuery.trim()}
 				{#each highlightText(project.description, searchQuery) as part}
 					{#if part.highlight}
-						<mark class="rounded bg-accent-500/20 px-0.5 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
+						<mark class="rounded-sm bg-accent-500/20 text-accent-700 dark:bg-accent-400/25 dark:text-accent-300">{part.text}</mark>
 					{:else}
 						{part.text}
 					{/if}
