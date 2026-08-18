@@ -1,0 +1,32 @@
+---
+title: Launch
+date: '2026-08-18'
+tags:
+  - added
+  - changed
+summary: Full-stack release with hardened InnerTube transcript scraper, pgvector semantic search, GPT-5.6 Luna AI enrichment, and interactive video chat.
+hero:
+  light: https://media.aylith.com/videx/media/home-light.png
+  dark: https://media.aylith.com/videx/media/home-dark.png
+  alt: 'Videx homepage: AI coding video knowledge base with search, channels, and transcripts'
+  width: 2720
+  height: 1760
+---
+<script>
+  import ThemedShot from '$lib/components/changelog/ThemedShot.svelte';
+</script>
+
+Videx is live as a YouTube-first AI coding knowledge base.
+
+- **Hardened YouTube scrapers**: InnerTube Android/Web/iOS fallback chain for captions and channel analytics.
+- **AI enrichment pipeline**: automatic tagging, topics, summaries, and sentiment with **GPT-5.6 Luna**.
+- **Transcript-grounded chat**: ask questions about any video with interactive citations.
+- **Fast full-text & semantic search**: powered by PostgreSQL 16 + pgvector and Fastify.
+
+<ThemedShot
+  light="https://media.aylith.com/videx/media/home-light.png"
+  dark="https://media.aylith.com/videx/media/home-dark.png"
+  alt="Videx homepage: AI coding video knowledge base with search, channels, and transcripts"
+  width={2720}
+  height={1760}
+/>

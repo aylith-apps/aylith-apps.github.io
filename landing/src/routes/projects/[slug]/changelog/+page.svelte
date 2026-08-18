@@ -75,11 +75,11 @@
 </section>
 
 <!-- Timeline -->
-<section class="pb-20 sm:pb-24">
+<section class="py-12 sm:py-16 lg:py-20">
 	<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
 		{#if entries.length === 0}
 			<div
-				class="rounded-xl border border-dashed border-surface-300 p-10 text-center dark:border-warm-700"
+				class="rounded-xl border border-dashed border-surface-300 p-10 text-center sm:p-14 dark:border-warm-700"
 				use:reveal
 			>
 				<p class="text-surface-600 dark:text-warm-300">No changelog entries yet.</p>
